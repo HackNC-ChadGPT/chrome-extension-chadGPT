@@ -1,5 +1,4 @@
 (() => {
-  let youtubeLeftControls, youtubePlayer;
   let currentChat = "";
   let currentVideoBookmarks = [];
 
@@ -14,30 +13,42 @@
     }
   });
 
-  const newChatLoaded = () => {
+  const newChatLoaded = async () => {
+    const userQuestions = document.querySelectorAll(
+      'div[data-message-author-role="user"]'
+    );
+    if (userQuestions.length > 0) {
+      console.log(userQuestions);
+      const lastQuestion = userQuestions[userQuestions.length - 1];
+      const userQuestion = lastQuestion.innerText;
+    }
     const chatGptReplies = document.getElementsByClassName("agent-turn");
-    console.log(chatGptReplies);
-    console.log("test", chatGptReplies[0]);
-    const lastReply = chatGptReplies[chatGptReplies.length - 1];
-    console.log("lastReply", lastReply);
-    const chatGptResponse = lastReply.innerText;
-    console.log(chatGptResponse);
-    //     const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
-    //     console.log(bookmarkBtnExists);
+    if (chatGptReplies.length > 0) {
+      const lastReply = chatGptReplies[chatGptReplies.length - 1];
+      const confidenceIconExists =
+        document.getElementsByClassName("confidence-icon")[0];
+    //   console.log("confidence ", confidenceIconExists);
 
-    //     if (!bookmarkBtnExists) {
-    //         const bookmarkBtn = document.createElement("img");
+      if (!confidenceIconExists) {
+        const confidenceIcon = document.createElement("img");
 
-    //         bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
-    //         bookmarkBtn.className = "ytp-button " + "bookmark-btn";
-    //         bookmarkBtn.title = "Click to bookmark current timestamp";
+        confidenceIcon.src = chrome.runtime.getURL("assets/bookmark.png");
+        // confidenceIcon.className = "ytp-button " + "bookmark-btn";
+        confidenceIcon.title =
+          "Confidence of chatGPT in answering your question";
 
-    //         youtubeLeftControls = document.getElementsByClassName("ytp-left-controls")[0];
-    //         youtubePlayer = document.getElementsByClassName("video-stream")[0];
+        // youtubeLeftControls =
+        //   document.getElementsByClassName("ytp-left-controls")[0];
+        // youtubePlayer = document.getElementsByClassName("video-stream")[0];
 
-    //         youtubeLeftControls.append(bookmarkBtn);
-    //         bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
-    //     }
+        lastReply.appendChild(confidenceIcon);
+        // bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
+      }
+
+      //   const chatGptResponse = lastReply.innerText;
+      //   console.log(chatGptResponse);
+    }
+
     // }
 
     // const addNewBookmarkEventHandler = () => {
