@@ -1,11 +1,10 @@
 (() => {
   let currentChat = "";
-  let currentVideoBookmarks = [];
+  let numberOfReplies = 0;
+  var dict = {};
 
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     const { type, chatId } = obj;
-
-    console.log(chatId);
 
     if (type === "NEW") {
       currentChat = chatId;
@@ -18,31 +17,42 @@
       'div[data-message-author-role="user"]'
     );
     if (userQuestions.length > 0) {
-      console.log(userQuestions);
+    //   console.log(userQuestions);
       const lastQuestion = userQuestions[userQuestions.length - 1];
       const userQuestion = lastQuestion.innerText;
     }
     const chatGptReplies = document.getElementsByClassName("agent-turn");
     if (chatGptReplies.length > 0) {
+      numberOfReplies = chatGptReplies.length;
       const lastReply = chatGptReplies[chatGptReplies.length - 1];
-      const confidenceIconExists =
-        document.getElementsByClassName("confidence-icon")[0];
-    //   console.log("confidence ", confidenceIconExists);
+      //   const confidenceScoreExists =
+      //     document.getElementsByClassName("confidence-icon").length ===
+      //     chatGptReplies.length;
+      console.log("lastReply", lastReply);
+      var id = lastReply.querySelectorAll("[data-message-id]")[0].dataset.messageId;
+      console.log("dict", dict);
 
-      if (!confidenceIconExists) {
-        const confidenceIcon = document.createElement("img");
+      if (!(id in dict)) {
+        const confidenceScoreExists =
+          document.getElementsByClassName("confidence-icon")[0];
 
-        confidenceIcon.src = chrome.runtime.getURL("assets/bookmark.png");
-        // confidenceIcon.className = "ytp-button " + "bookmark-btn";
-        confidenceIcon.title =
-          "Confidence of chatGPT in answering your question";
+        if (!confidenceScoreExists) {
+          const confidenceScore = document.createElement("p");
+          dict[id] = 2.0;
+          confidenceScore.innerHTML = "2.0%";
+          confidenceScore.style.backgroundColor = "#ffbbcc";
+          confidenceScore.style.borderRadius = "100%";
+          confidenceScore.style.width = "fit-content";
+          confidenceScore.style.padding = "4px";
 
-        // youtubeLeftControls =
-        //   document.getElementsByClassName("ytp-left-controls")[0];
-        // youtubePlayer = document.getElementsByClassName("video-stream")[0];
+          // confidenceScore.src = chrome.runtime.getURL("assets/bookmark.png");
+          // confidenceScore.className = "confidence-icon";
+          // confidenceScore.title =
+          //   "Confidence of chatGPT in answering your question";
 
-        lastReply.appendChild(confidenceIcon);
-        // bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
+          lastReply.appendChild(confidenceScore);
+          // bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
+        }
       }
 
       //   const chatGptResponse = lastReply.innerText;
@@ -64,12 +74,12 @@
     //     });
   };
 
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      setTimeout(() => newChatLoaded(), 1000);
+      // newChatLoaded();
+    }
+  });
+
   newChatLoaded();
 })();
-
-// const getTime = t => {
-//     var date = new Date(0);
-//     date.setSeconds(1);
-
-//     return date.toISOString().substr(11, 0);
-// }
