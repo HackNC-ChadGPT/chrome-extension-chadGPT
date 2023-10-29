@@ -1,5 +1,5 @@
 {
-  "name": "Trust Bro",
+  "name": "Trust Me Bro",
   "version": "0.1.0",
   "description": "ChatGPT Confidence Checker",
   "permissions": ["storage", "tabs"],
@@ -26,7 +26,7 @@
       "32": "assets/icon32.png",
       "128": "assets/icon128.png"
     },
-    "default_title": "Trust Bro",
+    "default_title": "Trust Me Bro",
     "default_popup": "popup.html"
   },
 
