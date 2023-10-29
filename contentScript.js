@@ -59,7 +59,7 @@ const addConfidenceScoreToResult = async (question, answer, index) => {
   try {
     const confidenceScore = await getConfidenceScore(question.innerText);
     const confidenceScoreElement = createConfidenceScoreElement(
-      confidenceScore,
+        Math.round(confidenceScore * 10000) / 100,
       confidenceScoreId
     );
     setTimeout(() => {
@@ -84,13 +84,21 @@ const createSpinner = (id) => {
 
 const createConfidenceScoreElement = (score, id) => {
   const confidenceScoreElement = document.createElement("p");
-  confidenceScoreElement.innerHTML = score;
-  confidenceScoreElement.style.backgroundColor = "#ffcccc";
+  confidenceScoreElement.innerHTML = score + "%";
+
+  // change color depending on score
+  if (score >= 66) {
+    confidenceScoreElement.style.backgroundColor = "#007f4d" //"#74aa9c";
+  } else if (score >= 33) {
+    confidenceScoreElement.style.backgroundColor = "#f4c40c";
+  } else {
+    confidenceScoreElement.style.backgroundColor = "#bc1c1c";
+  }
   confidenceScoreElement.style.width = "fit-content";
-  confidenceScoreElement.style.fontSize = "12px";
-  confidenceScoreElement.style.color = "grey";
+  confidenceScoreElement.style.fontStyle = "bold";
+  confidenceScoreElement.style.color = "white";
   confidenceScoreElement.style.borderRadius = "12px";
-  confidenceScoreElement.style.padding = "0px 8px";
+  confidenceScoreElement.style.padding = "2px 10px";
   confidenceScoreElement.id = id;
   return confidenceScoreElement;
 };
