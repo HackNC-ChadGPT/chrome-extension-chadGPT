@@ -1,6 +1,8 @@
 ## Inspiration
 
-When we each asked ChatGPT complex questions when doing our homework, it failed to give consistent responses, resulting in confusion. Thus, we wanted a way to know when ChatGPT is confident in the answer provided.
+When we each asked ChatGPT questions when doing our homework, it occasionally provided different people different responses, as if it was unsure. Yet, ChatGPT always sounds ever so confident in their responses, resulting in confusion.
+
+Thus, we wanted a way to know when ChatGPT is actually confident in the answer provided.
 
 ## What it does
 
@@ -16,6 +18,10 @@ When users enter a question, it is sent to our exposed API, which calculates a c
 
 As none of us were familiar with frontend and had never made a Chrome extension before, we struggled with getting the confidence scores to appear only under each ChatGPT response without any repetitions or infinite loops. We also had a bit of trouble integrating the frontend and backend as CORS errors kept appearing.
 
+Developing scalable asynchrony in the backend was a significant task for us. Some of the biggest issues include getting around the global interpreter lock, setting up and cleaning the jobs properly and even conceptualizing how the data is going to flow across various system components.
+
+We initially went into the direction of using a pre-made solution to handle directed acyclic graph asynchrony using Celery and RabbitMQ, but we eventually decided that it was more interesting to develop our own solution. and easier to deploy.
+
 ## Accomplishments that we're proud of
 
 We're proud that we completed a working minimum viable product with a functioning frontend and hosted backend.
@@ -23,11 +29,7 @@ We're proud that we completed a working minimum viable product with a functionin
 ## What we learned
 
 We learnt how to make a Chrome extension, and how to use JavaScript to manipulate the DOM :)
-We also learnt how to query the chatGPT API, running asynchronous processes and writing modularized code.
-
-## What's next for Trust Me Bro
-
-The extension is currently quite computationally heavy as it recalculates the score for every single past user question, even if the user might not want it. We also tried using session storage to save the scores, but didn't manage to get it to work. We could try this again in the future. Alternatively, we could add a button under each response that the user presses to trigger the confidence score calculation manually.
+We also learnt how to query the ChatGPT API, running asynchronous processes and writing modularized code.
 
 ## Acknowledgements
 
