@@ -1,85 +1,137 @@
-(() => {
-  let currentChat = "";
-  let numberOfReplies = 0;
-  var dict = {};
+const userQuestions = () => [
+  ...document.querySelectorAll('div[data-message-author-role="user"]'),
+];
+const gptAnswers = () => [...document.querySelectorAll(".markdown")];
 
-  chrome.runtime.onMessage.addListener((obj, sender, response) => {
-    const { type, chatId } = obj;
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    waitForElement("nav > .flex-col > .flex-col", () => {
+      const openedChats = document.querySelectorAll(
+        "nav > .flex-col > .flex-col"
+      );
+      openedChats.forEach((chat) => {
+        chat.addEventListener("click", async () => {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        });
+      });
+    });
+  }, 2000);
+});
 
-    if (type === "NEW") {
-      currentChat = chatId;
-      newChatLoaded();
-    }
-  });
+setInterval(() => {
+  try {
+    addConfidenceScores();
+  } catch (error) {
+    console.error("Error in addConfidenceScores:", error);
+  }
+}, 1000);
 
-  const newChatLoaded = async () => {
-    const userQuestions = document.querySelectorAll(
-      'div[data-message-author-role="user"]'
+const addConfidenceScores = () => {
+  const questions = userQuestions();
+  const answers = gptAnswers();
+  const results = questions.map((question, index) => [
+    question,
+    answers[index],
+  ]);
+  results.forEach((questionAnswerPair, index) => {
+    addConfidenceScoreToResult(
+      questionAnswerPair[0],
+      questionAnswerPair[1],
+      index
     );
-    if (userQuestions.length > 0) {
-    //   console.log(userQuestions);
-      const lastQuestion = userQuestions[userQuestions.length - 1];
-      const userQuestion = lastQuestion.innerText;
-    }
-    const chatGptReplies = document.getElementsByClassName("agent-turn");
-    if (chatGptReplies.length > 0) {
-      numberOfReplies = chatGptReplies.length;
-      const lastReply = chatGptReplies[chatGptReplies.length - 1];
-      //   const confidenceScoreExists =
-      //     document.getElementsByClassName("confidence-icon").length ===
-      //     chatGptReplies.length;
-      console.log("lastReply", lastReply);
-      var id = lastReply.querySelectorAll("[data-message-id]")[0].dataset.messageId;
-      console.log("dict", dict);
+  });
+};
 
-      if (!(id in dict)) {
-        const confidenceScoreExists =
-          document.getElementsByClassName("confidence-icon")[0];
+const addConfidenceScoreToResult = async (question, answer, index) => {
+  const resultLoadingId = `result-loading-${index}`;
+  const confidenceScoreId = `result-confidence-score-${index}`;
 
-        if (!confidenceScoreExists) {
-          const confidenceScore = document.createElement("p");
-          dict[id] = 2.0;
-          confidenceScore.innerHTML = "2.0%";
-          confidenceScore.style.backgroundColor = "#ffbbcc";
-          confidenceScore.style.borderRadius = "100%";
-          confidenceScore.style.width = "fit-content";
-          confidenceScore.style.padding = "4px";
+  if (
+    document.querySelector(`#${resultLoadingId}`) ||
+    document.querySelector(`#${confidenceScoreId}`)
+  ) {
+    return;
+  }
 
-          // confidenceScore.src = chrome.runtime.getURL("assets/bookmark.png");
-          // confidenceScore.className = "confidence-icon";
-          // confidenceScore.title =
-          //   "Confidence of chatGPT in answering your question";
+  const spinner = createSpinner(resultLoadingId);
+  answer.insertAdjacentElement("afterend", spinner);
 
-          lastReply.appendChild(confidenceScore);
-          // bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
-        }
-      }
+  try {
+    const confidenceScore = await getConfidenceScore(question.innerText);
+    const confidenceScoreElement = createConfidenceScoreElement(
+      confidenceScore,
+      confidenceScoreId
+    );
+    setTimeout(() => {
+      spinner.style.display = "none";
+      answer.insertAdjacentElement("afterend", confidenceScoreElement);
+    }, 3000);
+  } catch (error) {
+    console.error("Error in addConfidenceScoreToResult:", error);
+  }
+};
 
-      //   const chatGptResponse = lastReply.innerText;
-      //   console.log(chatGptResponse);
-    }
+const createSpinner = (id) => {
+  const spinner = document.createElement("object");
+  spinner.type = "image/svg+xml";
+  spinner.data = chrome.runtime.getURL("assets/spinner-animated.svg");
+  spinner.id = id;
+  spinner.setAttribute("width", "50");
+  spinner.setAttribute("height", "50");
 
-    // }
+  return spinner;
+};
 
-    // const addNewBookmarkEventHandler = () => {
-    //     const currentTime = youtubePlayer.currentTime;
-    //     const newBookmark = {
-    //         time: currentTime,
-    //         desc: "Bookmark at " + getTime(currentTime),
-    //     };
-    //     console.log(newBookmark);
+const createConfidenceScoreElement = (score, id) => {
+  const confidenceScoreElement = document.createElement("p");
+  confidenceScoreElement.innerHTML = score;
+  confidenceScoreElement.style.backgroundColor = "#ffcccc";
+  confidenceScoreElement.style.width = "fit-content";
+  confidenceScoreElement.style.fontSize = "12px";
+  confidenceScoreElement.style.color = "grey";
+  confidenceScoreElement.style.borderRadius = "12px";
+  confidenceScoreElement.style.padding = "0px 8px";
+  confidenceScoreElement.id = id;
+  return confidenceScoreElement;
+};
 
-    //     chrome.storage.sync.set({
-    //         [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time))
-    //     });
+const getConfidenceScore = async (prompt) => {
+  const settings = {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt: prompt }),
   };
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      setTimeout(() => newChatLoaded(), 1000);
-      // newChatLoaded();
-    }
-  });
+  try {
+    const response = await fetch(
+      `https://hacknc-23-chadgpt-c7659b067b76.herokuapp.com/getConfidence`,
+      settings
+    )
+      .then((res) => res.json())
+      .then((data) => data["result"]);
+    return response;
+  } catch (e) {
+    console.error("Error in getConfidenceScore:", e);
+    throw e;
+  }
+};
 
-  newChatLoaded();
-})();
+const waitForElement = (selector, callback) => {
+  const maxWaitTime = 5000;
+  const speed = 100;
+
+  const endTime = Date.now() + maxWaitTime;
+  const interval = setInterval(() => {
+    const element = document.querySelector(selector);
+    if (element) {
+      clearInterval(interval);
+      callback(element);
+    }
+    if (Date.now() >= endTime) {
+      clearInterval(interval);
+    }
+  }, speed);
+};

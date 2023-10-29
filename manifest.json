@@ -1,12 +1,10 @@
 {
-  "name": "ChadGPT",
+  "name": "Trust Bro",
   "version": "0.1.0",
   "description": "ChatGPT Confidence Checker",
   "permissions": ["storage", "tabs"],
   "host_permissions": ["https://chat.openai.com/*"],
-  "background": {
-    "service_worker": "background.js"
-  },
+
   "content_scripts": [
     {
       "matches": ["https://chat.openai.com/*"],
@@ -15,23 +13,25 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "assets/bookmark.png",
-        "assets/play.png",
-        "assets/delete.png",
-        "assets/save.png"
-      ],
+      "resources": ["assets/spinner-animated.svg", "assets/spinner-static.svg"],
       "matches": ["https://chat.openai.com/*"]
     }
   ],
   "action": {
     "default_icon": {
-      "16": "assets/ext-icon.png",
-      "24": "assets/ext-icon.png",
-      "32": "assets/ext-icon.png"
+      "16": "assets/icon16.png",
+      "24": "assets/icon128.png",
+      "32": "assets/icon32.png",
+      "128": "assets/icon128.png"
     },
-    "default_title": "ChadGPT",
+    "default_title": "Trust Bro",
     "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "24": "assets/icon128.png",
+    "32": "assets/icon32.png",
+    "128": "assets/icon128.png"
   },
   "manifest_version": 3
 }
