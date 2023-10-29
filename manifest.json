@@ -11,12 +11,14 @@
       "js": ["contentScript.js"]
     }
   ],
+
   "web_accessible_resources": [
     {
       "resources": ["assets/spinner-animated.svg", "assets/spinner-static.svg"],
       "matches": ["https://chat.openai.com/*"]
     }
   ],
+  
   "action": {
     "default_icon": {
       "16": "assets/icon16.png",
@@ -27,11 +29,13 @@
     "default_title": "Trust Bro",
     "default_popup": "popup.html"
   },
+
   "icons": {
     "16": "assets/icon16.png",
     "24": "assets/icon128.png",
     "32": "assets/icon32.png",
     "128": "assets/icon128.png"
   },
+
   "manifest_version": 3
 }
